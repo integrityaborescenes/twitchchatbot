@@ -36,6 +36,8 @@ class TwitchChatBot:
         self.config = self.load_config()
         self.commands = self.load_commands()
 
+        self.ensure_default_commands()
+
         # Создание интерфейса
         self.create_interface()
 
@@ -43,6 +45,27 @@ class TwitchChatBot:
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
         self.center_window()
+
+    def ensure_default_commands(self):
+        """Обеспечивает наличие команды !commands по умолчанию"""
+        if 'commands' not in self.commands:
+            self.commands['commands'] = {
+                'response': 'Доступные команды: !commands',
+                'usage_count': 0,
+                'is_default': True
+            }
+            self.save_commands()
+
+    def get_commands_list(self):
+        """Возвращает список всех доступных команд"""
+        if not self.commands:
+            return "Команды не настроены. Добавьте команды через интерфейс!"
+
+        command_list = []
+        for command in sorted(self.commands.keys()):
+            command_list.append(f"!{command}")
+
+        return f"Доступные команды: {', '.join(command_list)}"
 
     def setup_styles(self):
         """Настройка стилей для современного вида"""
@@ -434,6 +457,10 @@ class TwitchChatBot:
         item = self.commands_tree.item(selected[0])
         command = item['values'][0]
 
+        if command == 'commands':
+            messagebox.showwarning("Предупреждение", "Команда !commands является системной и не может быть удалена")
+            return
+
         if messagebox.askyesno("Подтверждение", f"Удалить команду '{command}'?"):
             del self.commands[command]
             self.save_commands()
@@ -661,7 +688,23 @@ class TwitchChatBot:
                                     command = message[1:].split()[0].lower()
                                     self.add_log(f"[DEBUG] Обнаружена команда: '{command}'")
 
-                                    if command in self.commands:
+                                    if command == 'commands':
+                                        response_text = self.get_commands_list()
+                                        self.add_log(f"[DEBUG] Генерируем список команд: {response_text}")
+
+                                        # Отправляем ответ
+                                        self.send_message(response_text)
+
+                                        # Увеличение счетчика использований
+                                        if 'commands' in self.commands:
+                                            self.commands['commands']['usage_count'] += 1
+                                            self.save_commands()
+                                            # Обновление списка команд в UI (в основном потоке)
+                                            self.root.after(0, self.refresh_commands_list)
+
+                                        self.add_log(f"✅ Ответил на команду !commands: {response_text}")
+
+                                    elif command in self.commands:
                                         response_text = self.commands[command]['response']
                                         self.add_log(f"[DEBUG] Найден ответ для команды '{command}': {response_text}")
 
