@@ -32,9 +32,14 @@ class TwitchChatBot:
         self.bot_thread = None
         self.stop_bot = False
 
+        self.auto_messages_enabled = False
+        self.auto_messages_thread = None
+        self.stop_auto_messages = False
+
         # Загрузка конфигурации
         self.config = self.load_config()
         self.commands = self.load_commands()
+        self.auto_messages = self.load_auto_messages()
 
         self.ensure_default_commands()
 
@@ -145,6 +150,8 @@ class TwitchChatBot:
 
         # Вкладка команд
         self.create_commands_tab()
+
+        self.create_auto_messages_tab()
 
         # Вкладка логов
         self.create_logs_tab()
@@ -334,6 +341,84 @@ class TwitchChatBot:
         # Загрузка команд в список
         self.refresh_commands_list()
 
+    def create_auto_messages_tab(self):
+        """Создание вкладки автосообщений"""
+        auto_messages_frame = ttk.Frame(self.notebook)
+        self.notebook.add(auto_messages_frame, text="⏰ Автосообщения")
+
+        main_container = tk.Frame(auto_messages_frame, bg='#0e0e10')
+        main_container.pack(fill='both', expand=True)
+
+        # Заголовок и управление
+        header_card = tk.Frame(main_container, bg='#18181b', relief='flat', bd=0)
+        header_card.pack(fill='x', pady=(0, 15))
+
+        header_content = tk.Frame(header_card, bg='#18181b')
+        header_content.pack(fill='x', padx=20, pady=15)
+
+        tk.Label(header_content, text="⏰ Автоматические сообщения", bg='#18181b', fg='#ffffff',
+                 font=('Segoe UI', 12, 'bold')).pack(anchor='w', pady=(0, 12))
+
+        # Управление автосообщениями
+        control_frame = tk.Frame(header_content, bg='#18181b')
+        control_frame.pack(fill='x', pady=(0, 15))
+
+        self.auto_messages_status_label = tk.Label(control_frame, text="⭕ Остановлено",
+                                                   bg='#18181b', fg='#f13c20',
+                                                   font=('Segoe UI', 10, 'bold'))
+        self.auto_messages_status_label.pack(side='left')
+
+        self.toggle_auto_messages_btn = ttk.Button(control_frame, text="▶️ Запустить",
+                                                   command=self.toggle_auto_messages,
+                                                   style='Success.TButton')
+        self.toggle_auto_messages_btn.pack(side='right', padx=(0, 10))
+
+        # Кнопки управления сообщениями
+        buttons_frame = tk.Frame(header_content, bg='#18181b')
+        buttons_frame.pack(fill='x')
+
+        ttk.Button(buttons_frame, text="➕ Добавить",
+                   command=self.add_auto_message, style='Success.TButton').pack(side='left', padx=(0, 8))
+
+        ttk.Button(buttons_frame, text="✏️ Изменить",
+                   command=self.edit_auto_message, style='Custom.TButton').pack(side='left', padx=(0, 8))
+
+        ttk.Button(buttons_frame, text="🗑️ Удалить",
+                   command=self.delete_auto_message, style='Danger.TButton').pack(side='left')
+
+        # Список автосообщений
+        list_card = tk.Frame(main_container, bg='#18181b', relief='flat', bd=0)
+        list_card.pack(fill='both', expand=True)
+
+        list_content = tk.Frame(list_card, bg='#18181b')
+        list_content.pack(fill='both', expand=True, padx=20, pady=20)
+
+        # Создание Treeview для автосообщений
+        columns = ('Сообщение', 'Интервал (мин)', 'Статус', 'Отправлено')
+        self.auto_messages_tree = ttk.Treeview(list_content, columns=columns, show='headings', height=15)
+
+        # Настройка заголовков
+        self.auto_messages_tree.heading('Сообщение', text='💬 Сообщение')
+        self.auto_messages_tree.heading('Интервал (мин)', text='⏱️ Интервал')
+        self.auto_messages_tree.heading('Статус', text='📊 Статус')
+        self.auto_messages_tree.heading('Отправлено', text='📈 Отправлено')
+
+        self.auto_messages_tree.column('Сообщение', width=300)
+        self.auto_messages_tree.column('Интервал (мин)', width=100)
+        self.auto_messages_tree.column('Статус', width=80)
+        self.auto_messages_tree.column('Отправлено', width=80)
+
+        # Скроллбар
+        auto_scrollbar = ttk.Scrollbar(list_content, orient='vertical', command=self.auto_messages_tree.yview)
+        self.auto_messages_tree.configure(yscrollcommand=auto_scrollbar.set)
+
+        # Размещение элементов
+        self.auto_messages_tree.pack(side='left', fill='both', expand=True)
+        auto_scrollbar.pack(side='right', fill='y')
+
+        # Загрузка автосообщений в список
+        self.refresh_auto_messages_list()
+
     def create_logs_tab(self):
         """Создание вкладки логов"""
         logs_frame = ttk.Frame(self.notebook)
@@ -420,6 +505,24 @@ class TwitchChatBot:
         except Exception as e:
             self.add_log(f"Ошибка сохранения команд: {e}")
 
+    def load_auto_messages(self):
+        """Загрузка автосообщений"""
+        try:
+            if os.path.exists('auto_messages.json'):
+                with open('auto_messages.json', 'r', encoding='utf-8') as f:
+                    return json.load(f)
+        except Exception as e:
+            self.add_log(f"Ошибка загрузки автосообщений: {e}")
+        return {}
+
+    def save_auto_messages(self):
+        """Сохранение автосообщений"""
+        try:
+            with open('auto_messages.json', 'w', encoding='utf-8') as f:
+                json.dump(self.auto_messages, f, ensure_ascii=False, indent=2)
+        except Exception as e:
+            self.add_log(f"Ошибка сохранения автосообщений: {e}")
+
     def refresh_commands_list(self):
         """Обновление списка команд"""
         # Очистка списка
@@ -431,6 +534,20 @@ class TwitchChatBot:
             response = data.get('response', '')
             usage_count = data.get('usage_count', 0)
             self.commands_tree.insert('', 'end', values=(command, response, usage_count))
+
+    def refresh_auto_messages_list(self):
+        """Обновление списка автосообщений"""
+        # Очистка списка
+        for item in self.auto_messages_tree.get_children():
+            self.auto_messages_tree.delete(item)
+
+        # Добавление автосообщений
+        for msg_id, data in self.auto_messages.items():
+            message = data.get('message', '')[:50] + ('...' if len(data.get('message', '')) > 50 else '')
+            interval = data.get('interval', 0)
+            enabled = "✅ Вкл" if data.get('enabled', True) else "❌ Выкл"
+            sent_count = data.get('sent_count', 0)
+            self.auto_messages_tree.insert('', 'end', values=(message, interval, enabled, sent_count))
 
     def add_command(self):
         """Добавление новой команды"""
@@ -466,6 +583,38 @@ class TwitchChatBot:
             self.save_commands()
             self.refresh_commands_list()
             self.add_log(f"Команда '{command}' удалена")
+
+    def add_auto_message(self):
+        """Добавление нового автосообщения"""
+        self.auto_message_dialog()
+
+    def edit_auto_message(self):
+        """Редактирование автосообщения"""
+        selected = self.auto_messages_tree.selection()
+        if not selected:
+            messagebox.showwarning("Предупреждение", "Выберите автосообщение для редактирования")
+            return
+
+        # Получаем индекс выбранного элемента
+        item_index = self.auto_messages_tree.index(selected[0])
+        msg_id = list(self.auto_messages.keys())[item_index]
+        self.auto_message_dialog(msg_id)
+
+    def delete_auto_message(self):
+        """Удаление автосообщения"""
+        selected = self.auto_messages_tree.selection()
+        if not selected:
+            messagebox.showwarning("Предупреждение", "Выберите автосообщение для удаления")
+            return
+
+        item_index = self.auto_messages_tree.index(selected[0])
+        msg_id = list(self.auto_messages.keys())[item_index]
+
+        if messagebox.askyesno("Подтверждение", "Удалить выбранное автосообщение?"):
+            del self.auto_messages[msg_id]
+            self.save_auto_messages()
+            self.refresh_auto_messages_list()
+            self.add_log(f"Автосообщение удалено")
 
     def command_dialog(self, edit_command=None):
         """Диалог добавления/редактирования команды"""
@@ -596,6 +745,241 @@ class TwitchChatBot:
 
         dialog.bind('<Return>', on_enter_key)
         dialog.bind('<Escape>', on_escape_key)
+
+    def auto_message_dialog(self, edit_msg_id=None):
+        """Диалог добавления/редактирования автосообщения"""
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Добавить автосообщение" if not edit_msg_id else "Редактировать автосообщение")
+        dialog.geometry("500x450")
+        dialog.configure(bg='#0e0e10')
+        dialog.resizable(False, False)
+
+        # Центрирование окна
+        dialog.transient(self.root)
+        dialog.grab_set()
+
+        # Основной контейнер
+        main_container = tk.Frame(dialog, bg='#0e0e10')
+        main_container.pack(fill='both', expand=True)
+
+        # Карточка диалога
+        dialog_card = tk.Frame(main_container, bg='#18181b', relief='flat', bd=0)
+        dialog_card.pack(fill='both', expand=True)
+
+        card_content = tk.Frame(dialog_card, bg='#18181b')
+        card_content.pack(fill='both', expand=True, padx=20, pady=20)
+
+        # Заголовок
+        title_text = "➕ Добавить автосообщение" if not edit_msg_id else "✏️ Редактировать автосообщение"
+        title_label = tk.Label(card_content, text=title_text, bg='#18181b', fg='#ffffff',
+                               font=('Segoe UI', 12, 'bold'))
+        title_label.pack(pady=(0, 20))
+
+        # Поля ввода
+        tk.Label(card_content, text="💬 Текст сообщения:", bg='#18181b', fg='#adadb8',
+                 font=('Segoe UI', 10, 'bold')).pack(anchor='w', pady=(0, 5))
+        message_text = tk.Text(card_content, width=50, height=4,
+                               font=('Segoe UI', 10), bg='#26262c', fg='white',
+                               insertbackground='#9146ff', relief='flat', bd=0, wrap='word',
+                               highlightthickness=2, highlightcolor='#9146ff',
+                               highlightbackground='#3a3a3d')
+        message_text.pack(fill='x', pady=(0, 15))
+        self.setup_text_paste_support(message_text)
+
+        tk.Label(card_content, text="⏱️ Интервал (минуты):", bg='#18181b', fg='#adadb8',
+                 font=('Segoe UI', 10, 'bold')).pack(anchor='w', pady=(0, 5))
+        interval_var = tk.StringVar(value='5')
+        interval_entry = tk.Entry(card_content, textvariable=interval_var,
+                                  font=('Segoe UI', 10), bg='#26262c', fg='white',
+                                  insertbackground='#9146ff', relief='flat', bd=0,
+                                  highlightthickness=2, highlightcolor='#9146ff',
+                                  highlightbackground='#3a3a3d')
+        interval_entry.pack(fill='x', pady=(0, 15), ipady=8)
+        self.setup_paste_support(interval_entry)
+
+        # Чекбокс активности
+        enabled_var = tk.BooleanVar(value=True)
+        enabled_check = tk.Checkbutton(card_content, text="✅ Включить автосообщение",
+                                       variable=enabled_var, bg='#18181b', fg='#adadb8',
+                                       selectcolor='#26262c', activebackground='#18181b',
+                                       activeforeground='#ffffff', font=('Segoe UI', 10))
+        enabled_check.pack(anchor='w', pady=(0, 20))
+
+        # Если редактируем, заполняем поля
+        if edit_msg_id and edit_msg_id in self.auto_messages:
+            data = self.auto_messages[edit_msg_id]
+            message_text.insert('1.0', data.get('message', ''))
+            interval_var.set(str(data.get('interval', 5)))
+            enabled_var.set(data.get('enabled', True))
+
+        # Кнопки
+        buttons_frame = tk.Frame(card_content, bg='#18181b', height=50)
+        buttons_frame.pack(fill='x', pady=(15, 0))
+        buttons_frame.pack_propagate(False)
+
+        def save_auto_message():
+            message = message_text.get('1.0', 'end-1c').strip()
+            try:
+                interval = int(interval_var.get())
+            except ValueError:
+                messagebox.showwarning("Предупреждение", "Интервал должен быть числом")
+                interval_entry.focus()
+                return
+
+            if not message:
+                messagebox.showwarning("Предупреждение", "Введите текст сообщения")
+                message_text.focus()
+                return
+
+            if interval < 1:
+                messagebox.showwarning("Предупреждение", "Интервал должен быть больше 0")
+                interval_entry.focus()
+                return
+
+            # Создаем ID для сообщения
+            if edit_msg_id:
+                msg_id = edit_msg_id
+            else:
+                msg_id = str(int(time.time()))
+
+            # Сохранение автосообщения
+            self.auto_messages[msg_id] = {
+                'message': message,
+                'interval': interval,
+                'enabled': enabled_var.get(),
+                'sent_count': self.auto_messages.get(msg_id, {}).get('sent_count', 0),
+                'last_sent': 0
+            }
+
+            self.save_auto_messages()
+            self.refresh_auto_messages_list()
+
+            action = "обновлено" if edit_msg_id else "добавлено"
+            self.add_log(f"✅ Автосообщение {action}")
+            messagebox.showinfo("Успех", f"Автосообщение успешно {action}!")
+            dialog.destroy()
+
+        def cancel_dialog():
+            dialog.destroy()
+
+        # Кнопки сохранения и отмены
+        save_btn = tk.Button(buttons_frame, text="💾 Сохранить",
+                             command=save_auto_message, bg='#00f593', fg='white',
+                             font=('Segoe UI', 10, 'bold'), relief='flat', bd=0,
+                             padx=25, pady=10, cursor='hand2')
+        save_btn.pack(side='right', padx=(10, 0))
+
+        cancel_btn = tk.Button(buttons_frame, text="❌ Отмена",
+                               command=cancel_dialog, bg='#f13c20', fg='white',
+                               font=('Segoe UI', 10, 'bold'), relief='flat', bd=0,
+                               padx=25, pady=10, cursor='hand2')
+        cancel_btn.pack(side='right')
+
+        # Эффекты наведения
+        def on_save_enter(e):
+            save_btn.config(bg='#00d084')
+
+        def on_save_leave(e):
+            save_btn.config(bg='#00f593')
+
+        def on_cancel_enter(e):
+            cancel_btn.config(bg='#d32f2f')
+
+        def on_cancel_leave(e):
+            cancel_btn.config(bg='#f13c20')
+
+        save_btn.bind('<Enter>', on_save_enter)
+        save_btn.bind('<Leave>', on_save_leave)
+        cancel_btn.bind('<Enter>', on_cancel_enter)
+        cancel_btn.bind('<Leave>', on_cancel_leave)
+
+        # Фокус на поле сообщения
+        message_text.focus()
+
+        # Горячие клавиши
+        def on_enter_key(event):
+            save_auto_message()
+
+        def on_escape_key(event):
+            cancel_dialog()
+
+        dialog.bind('<Return>', on_enter_key)
+        dialog.bind('<Escape>', on_escape_key)
+
+    def toggle_auto_messages(self):
+        """Переключение автосообщений"""
+        if not self.connected:
+            messagebox.showwarning("Предупреждение", "Сначала подключитесь к Twitch!")
+            return
+
+        if not self.auto_messages:
+            messagebox.showwarning("Предупреждение", "Добавьте хотя бы одно автосообщение!")
+            return
+
+        if self.auto_messages_enabled:
+            self.stop_auto_messages_func()
+        else:
+            self.start_auto_messages_func()
+
+    def start_auto_messages_func(self):
+        """Запуск автосообщений"""
+        self.auto_messages_enabled = True
+        self.stop_auto_messages = False
+
+        # Запуск потока автосообщений
+        self.auto_messages_thread = threading.Thread(target=self.auto_messages_loop, daemon=True)
+        self.auto_messages_thread.start()
+
+        self.auto_messages_status_label.config(text="🟢 Запущено", fg='#00f593')
+        self.toggle_auto_messages_btn.config(text="⏸️ Остановить", style='Danger.TButton')
+
+        self.add_log("🚀 Автосообщения запущены")
+
+    def stop_auto_messages_func(self):
+        """Остановка автосообщений"""
+        self.auto_messages_enabled = False
+        self.stop_auto_messages = True
+
+        self.auto_messages_status_label.config(text="⭕ Остановлено", fg='#f13c20')
+        self.toggle_auto_messages_btn.config(text="▶️ Запустить", style='Success.TButton')
+
+        self.add_log("⏸️ Автосообщения остановлены")
+
+    def auto_messages_loop(self):
+        """Основной цикл автосообщений"""
+        while not self.stop_auto_messages and self.auto_messages_enabled:
+            try:
+                current_time = time.time()
+
+                for msg_id, data in self.auto_messages.items():
+                    if not data.get('enabled', True):
+                        continue
+
+                    interval_seconds = data.get('interval', 5) * 60  # Конвертируем минуты в секунды
+                    last_sent = data.get('last_sent', 0)
+
+                    # Проверяем, пора ли отправлять сообщение
+                    if current_time - last_sent >= interval_seconds:
+                        if self.connected and self.socket:
+                            message = data.get('message', '')
+                            self.send_message(message)
+
+                            # Обновляем статистику
+                            self.auto_messages[msg_id]['last_sent'] = current_time
+                            self.auto_messages[msg_id]['sent_count'] = data.get('sent_count', 0) + 1
+
+                            self.save_auto_messages()
+
+                            # Обновляем UI
+                            self.root.after(0, self.refresh_auto_messages_list)
+
+                            self.add_log(f"📤 Автосообщение отправлено: {message[:50]}...")
+
+                time.sleep(10)  # Проверяем каждые 10 секунд
+
+            except Exception as e:
+                self.add_log(f"❌ Ошибка в цикле автосообщений: {e}")
+                break
 
     def connect_to_twitch(self):
         """Подключение к Twitch"""
@@ -771,6 +1155,8 @@ class TwitchChatBot:
         """Обработка закрытия приложения"""
         if self.connected:
             self.disconnect_from_twitch()
+        if self.auto_messages_enabled:
+            self.stop_auto_messages_func()
         self.root.destroy()
 
     def run(self):
