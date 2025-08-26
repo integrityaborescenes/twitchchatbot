@@ -1,0 +1,11 @@
+{
+  "commands": {
+    "response": "Доступные команды: !commands",
+    "usage_count": 1,
+    "is_default": true
+  },
+  "sens": {
+    "usage_count": 1,
+    "response": "0.04 in game 800 dpi"
+  }
+}
