@@ -253,7 +253,7 @@ class TwitchChatBot:
             "",
             "3. Авторизуйтесь через Twitch",
             "",
-            "4. Скопируйте ACCESS TOKEN",
+            "4. Выдайте все права и скопируйте ACCESS TOKEN",
             "   (первый зеленый токен)",
             "",
             "5. Вставьте токен в поле oAuth токен",
@@ -799,7 +799,7 @@ class TwitchChatBot:
 
         # Чекбокс активности
         enabled_var = tk.BooleanVar(value=True)
-        enabled_check = tk.Checkbutton(card_content, text="✅ Включить автосообщение",
+        enabled_check = tk.Checkbutton(card_content, text="Включить автосообщение",
                                        variable=enabled_var, bg='#18181b', fg='#adadb8',
                                        selectcolor='#26262c', activebackground='#18181b',
                                        activeforeground='#ffffff', font=('Segoe UI', 10))

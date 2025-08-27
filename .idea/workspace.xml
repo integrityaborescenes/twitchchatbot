@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c364b827-be79-44ca-82e7-eda66f3c5392" name="Changes" comment="добавлена команда !commands по дефолту">
+    <list default="true" id="c364b827-be79-44ca-82e7-eda66f3c5392" name="Changes" comment="добавлены автосообщения по таймеру">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/commands.json" beforeDir="false" afterPath="$PROJECT_DIR$/commands.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/twitchcommands.py" beforeDir="false" afterPath="$PROJECT_DIR$/twitchcommands.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -131,13 +133,22 @@
       <option name="project" value="LOCAL" />
       <updated>1756248620987</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="добавлены автосообщения по таймеру">
+      <option name="closed" value="true" />
+      <created>1756248884031</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1756248884031</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="f" />
     <MESSAGE value="1st" />
     <MESSAGE value="добавлена команда !commands по дефолту" />
-    <option name="LAST_COMMIT_MESSAGE" value="добавлена команда !commands по дефолту" />
+    <MESSAGE value="добавлены автосообщения по таймеру" />
+    <option name="LAST_COMMIT_MESSAGE" value="добавлены автосообщения по таймеру" />
   </component>
 </project>
