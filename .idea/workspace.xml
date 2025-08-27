@@ -5,10 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c364b827-be79-44ca-82e7-eda66f3c5392" name="Changes" comment="добавлены автосообщения по таймеру">
+      <change afterPath="$PROJECT_DIR$/chatmngr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/commands.json" beforeDir="false" afterPath="$PROJECT_DIR$/commands.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/twitchcommands.py" beforeDir="false" afterPath="$PROJECT_DIR$/twitchcommands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/twitchcommands.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,21 +25,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "integrityaborescenes"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;integrityaborescenes&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/integrityaborescenes/twitchchatbot.git",
-    "accountId": "a73c6dd2-ec5a-484c-8adc-1d08dc256a83"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/integrityaborescenes/twitchchatbot.git&quot;,
+    &quot;accountId&quot;: &quot;a73c6dd2-ec5a-484c-8adc-1d08dc256a83&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="31przRpWxWUtf8U6BJO0vxOmq3S" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -50,9 +50,16 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python.chatmngr.executor": "Run",
+    "Python.gui_manager.executor": "Run",
+    "Python.main.executor": "Run",
+    "Python.tts_functions.executor": "Run",
+    "Python.tts_manager.executor": "Run",
+    "Python.twitch_bot.executor": "Run",
     "Python.twitchbot.executor": "Run",
     "Python.twitchcommands.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master"
   }
 }]]></component>
@@ -141,7 +148,15 @@
       <option name="project" value="LOCAL" />
       <updated>1756248884031</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="добавлены автосообщения по таймеру">
+      <option name="closed" value="true" />
+      <created>1756252872327</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1756252872327</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">

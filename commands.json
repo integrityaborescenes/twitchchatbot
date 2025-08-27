@@ -1,11 +1,27 @@
 {
   "commands": {
     "response": "Доступные команды: !commands",
-    "usage_count": 2,
+    "usage_count": 4,
     "is_default": true
   },
   "sens": {
     "usage_count": 2,
     "response": "0.04 in game 800 dpi"
+  },
+  "рука": {
+    "usage_count": 0,
+    "response": "попа"
+  },
+  "какули": {
+    "usage_count": 0,
+    "response": "7777"
+  },
+  "жопа": {
+    "usage_count": 0,
+    "response": "1213"
+  },
+  "rfr": {
+    "usage_count": 0,
+    "response": "sfds"
   }
 }
